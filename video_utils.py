@@ -3,7 +3,7 @@ from typing import Tuple
 
 def extract_video_details(video_url: str) -> Tuple[str, str]:
     """
-    Extract and return the title and description of a YouTube video using yt-dlp.
+    Extract the title and description of a YouTube video.
 
     :param video_url: URL of the YouTube video.
     :return: A tuple containing the video title and description.
@@ -11,10 +11,14 @@ def extract_video_details(video_url: str) -> Tuple[str, str]:
     ydl_opts = {
         "quiet": True,
         "no_warnings": True,
-        "simulate": True,  # Do not download the video
-        "skip_download": True,  # Skip downloading the video
-        "force_generic_extractor": True,  # Try to use the generic extractor for speed
-        "extract_flat": True,  # Do not extract additional information about formats
+        # Do not download the video
+        "simulate": True,
+        # Skip downloading the video
+        "skip_download": True,
+        # Try to use the generic extractor for speed
+        "force_generic_extractor": True,
+        # Do not extract additional information about formats
+        "extract_flat": True,
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
