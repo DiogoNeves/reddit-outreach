@@ -56,6 +56,10 @@ These are the settings I used for my app:
 python outreach.py "https://www.youtube.com/watch?v=bF7WnLk5ix4"
 ```
 
+## Contributing
+
+Contributions are welcome! PRs, issues, and feedback are appreciated.
+
 ## License
 
 [MIT License](LICENSE)
