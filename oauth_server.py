@@ -1,3 +1,5 @@
+"""A simple OAuth server that listens for an authorization code."""
+
 import asyncio
 from aiohttp import web
 from aiohttp.web_request import Request
@@ -26,13 +28,13 @@ class OAuthHandler:
 
     async def run_server(self) -> Optional[str]:
         app = web.Application()
-        app.add_routes([web.get('/', self.handle)])
+        app.add_routes([web.get('/reddit', self.handle)])
 
         runner = web.AppRunner(app)
         await runner.setup()
         site = web.TCPSite(runner, 'localhost', 8000)
         await site.start()
-        print("Serving on http://localhost:8000")
+        print("Serving on http://localhost:8000/reddit")
 
         # Wait for the authorization code to be received
         await self.auth_code_event.wait()

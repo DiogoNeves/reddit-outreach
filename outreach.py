@@ -1,3 +1,5 @@
+"""Starting point of the application."""
+
 import argparse
 import os
 from dotenv import load_dotenv

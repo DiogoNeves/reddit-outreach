@@ -1,3 +1,5 @@
+"""Utility functions to search Reddit."""""
+
 import praw
 import webbrowser
 from oauth_server import get_auth_code_from_server
@@ -20,6 +22,13 @@ def init_reddit(client_id: str, client_secret: str, user_agent: str,
                          client_secret=client_secret,
                          user_agent=user_agent,
                          redirect_uri=redirect_uri)
+
+    # Obtain the URL for user authentication
+    auth_url = reddit.auth.url(['*'], 'secrethorseshoe', 'permanent')
+    print(f"Please go to this URL and authorize the application: {auth_url}")
+
+    # Open the URL in the web browser for the user to authenticate
+    webbrowser.open(auth_url)
 
     # Start the async HTTP server and wait for the authorization code
     code = get_auth_code_from_server()
