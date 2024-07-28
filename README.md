@@ -33,9 +33,15 @@
 
 ### Usage
 
-#### Extracting Video Details
+**Create a .env file in the root directory with the following content:**
 
-To extract and print details of a YouTube video, run:
+```sh
+export REDDIT_CLIENT_ID="your_client_id"
+export REDDIT_CLIENT_SECRET="your_client_secret"
+export REDDIT_USER_AGENT="your_user_agent"
+export REDDIT_REDIRECT_URI="http://localhost:8000"
+```
+_You can create them at [prefs/apps/](https://www.reddit.com/prefs/apps/)_
 
 ```sh
 python outreach.py "https://www.youtube.com/watch?v=example"
