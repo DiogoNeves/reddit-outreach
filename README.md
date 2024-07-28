@@ -46,6 +46,9 @@ export REDDIT_USER_AGENT="your_user_agent"
 export REDDIT_REDIRECT_URI="http://localhost:8000"
 ```
 
+These are the settings I used for my app:
+![Reddit App Settings](./assets/app_settings.png)
+
 ## Usage
 
 ```sh
