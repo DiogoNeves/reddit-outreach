@@ -8,6 +8,7 @@
 
 - Python 3.11+
 - pip (upgrade with \`pip install --upgrade pip\` recommeneded)
+- Reddit account and app setup
 
 ### Installation
 
@@ -31,7 +32,10 @@
     pip install -r requirements.txt
     ```
 
-### Usage
+### Configuration
+
+Create a Reddit app at [prefs/apps/](https://www.reddit.com/prefs/apps/).
+Set the app's redirect URI to `http://localhost:8000`.
 
 **Create a .env file in the root directory with the following content:**
 
@@ -41,10 +45,12 @@ export REDDIT_CLIENT_SECRET="your_client_secret"
 export REDDIT_USER_AGENT="your_user_agent"
 export REDDIT_REDIRECT_URI="http://localhost:8000"
 ```
-_You can create them at [prefs/apps/](https://www.reddit.com/prefs/apps/)_
+
+## Usage
 
 ```sh
-python outreach.py "https://www.youtube.com/watch?v=example"
+# Using my video
+python outreach.py "https://www.youtube.com/watch?v=bF7WnLk5ix4"
 ```
 
 ## License
