@@ -35,7 +35,7 @@ def init_reddit(client_id: str, client_secret: str, user_agent: str,
     print(f"Redirected URL: {redirected_url}")
 
     # Parse the code from the redirected URL
-    code = redirected_url.split("code=")[-1]
+    code = redirected_url.split("code=")[-1].split("#")[0].strip()
     print(f"Authorization Code: {code}")
 
     # Obtain the refresh token
