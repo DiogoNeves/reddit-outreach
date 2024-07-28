@@ -1,3 +1,4 @@
-yt-dlp==2024.7.25
+aiohttp-3.9.5
 praw-7.7.1
 python-dotenv-1.0.1
+yt-dlp==2024.7.25

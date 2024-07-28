@@ -1,5 +1,3 @@
-"""Starting point of the application."""
-
 import argparse
 import os
 from dotenv import load_dotenv
@@ -28,8 +26,8 @@ def main(video_url: str) -> None:
 
     if not all([client_id, client_secret, user_agent, redirect_uri]):
         print("Error: Missing one or more environment variables"
-            " (REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT,"
-            " REDDIT_REDIRECT_URI).")
+              " (REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT,"
+              " REDDIT_REDIRECT_URI).")
         return
 
     # Initialize Reddit
