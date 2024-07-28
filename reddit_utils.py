@@ -1,8 +1,10 @@
+from typing import Optional
+
 import praw
 import webbrowser
 
 def init_reddit(client_id: str, client_secret: str, user_agent: str,
-                redirect_uri: str) -> praw.Reddit:
+                redirect_uri: str) -> Optional[praw.Reddit]:
     """
     Initialize and return a Reddit instance using OAuth2.
 
@@ -38,12 +40,13 @@ def init_reddit(client_id: str, client_secret: str, user_agent: str,
     code = redirected_url.split("code=")[-1].split("#")[0].strip()
     print(f"Authorization Code: {code}")
 
-    # Obtain the refresh token
     try:
+        # Obtain the refresh token
         refresh_token = reddit.auth.authorize(code)
         print(f"Refresh Token: {refresh_token}")
         reddit.config.refresh_token = refresh_token
     except Exception as e:
         print(f"Error obtaining refresh token: {e}")
+        return None
 
     return reddit

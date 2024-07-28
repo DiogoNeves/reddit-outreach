@@ -34,6 +34,10 @@ def main(video_url: str) -> None:
 
     # Initialize Reddit
     reddit = init_reddit(client_id, client_secret, user_agent, redirect_uri)
+    if reddit is None:
+        print("Error initializing Reddit.")
+        return
+
     print("Reddit initialized successfully.")
 
 if __name__ == "__main__":
