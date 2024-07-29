@@ -1,6 +1,7 @@
 # Reddit Outreach
 
-> A simple tool to find Reddit posts that would benefit from sharing a specific YouTube video.
+A simple tool to find Reddit posts that would benefit from sharing a specific YouTube video.
+
 
 ## Features
 
