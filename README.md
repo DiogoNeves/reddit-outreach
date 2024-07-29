@@ -7,7 +7,7 @@
 ### Prerequisites
 
 - Python 3.11+
-- pip (upgrade with \`pip install --upgrade pip\` recommeneded)
+- pip (upgrade with \`pip install --upgrade pip\` recommended)
 - Reddit account and app setup
 
 ### Installation
@@ -34,8 +34,7 @@
 
 ### Configuration
 
-Create a Reddit app at [prefs/apps/](https://www.reddit.com/prefs/apps/).
-Set the app's redirect URI to `http://localhost:8000`.
+Create a Reddit app at [prefs/apps/](https://www.reddit.com/prefs/apps/). Set the app's redirect URI to `http://localhost:8000`.
 
 **Create a .env file in the root directory with the following content:**
 
@@ -48,6 +47,19 @@ export REDDIT_REDIRECT_URI="http://localhost:8000"
 
 These are the settings I used for my app:
 ![Reddit App Settings](./assets/app_settings.png)
+
+## Features
+
+### Main Features
+
+- **Generate Comments:** Automatically generate relevant comments to publicize your YouTube video based on how relevant your video is to the posts.
+- **Multi-step LLM Calls:** Utilize multiple steps of language model calls to analyze posts and generate engagement content.
+
+### Technical Features
+
+- **Caching:** Implemented caching mechanism to save intermediate results and improve performance.
+- **Parallel Processing:** Efficiently handle multiple asynchronous tasks to speed up processing.
+- **Simple OpenAI Calls:** Easy integration with OpenAI's API for natural language processing.
 
 ## Usage
 
