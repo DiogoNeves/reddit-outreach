@@ -9,16 +9,16 @@ A simple tool to find Reddit posts that would benefit from sharing a specific Yo
 
 ### Main Features
 
-- **Generate Comments:** Automatically generate relevant comments to publicize your YouTube video based on how relevant your video is to the posts.
-- **Multi-step LLM Calls:** Utilize multiple steps of language model calls to analyze posts and generate engagement content.
-- **Reddit API Integration:** Use the Reddit API to search for posts and comments to find the best opportunities for outreach.
-- **Exports to CSV:** Export the generated comments to a CSV file for easy sharing and tracking.
+- **📝 Generate Comments:** Automatically generate relevant comments to publicize your YouTube video based on how relevant your video is to the posts.
+- **🔄 Multi-step LLM Calls:** Utilize multiple steps of language model calls to analyze posts and generate engagement content.
+- **🔍 Reddit API Integration:** Use the Reddit API to search for posts and comments to find the best opportunities for outreach.
+- **📊 Exports to CSV:** Export the generated comments to a CSV file for easy sharing and tracking.
 
 ### Technical Features
 
-- **Caching:** Implemented caching mechanism to save intermediate results and improve performance.
-- **Parallel Processing:** Efficiently handle multiple asynchronous tasks to speed up processing.
-- **Simple OpenAI Calls:** Easy integration with OpenAI's API for natural language processing.
+- **⚡ Caching:** Implemented caching mechanism to save intermediate results and improve performance.
+- **⏱️ Parallel Processing:** Efficiently handle multiple asynchronous tasks to speed up processing.
+- **🔗 Simple OpenAI Calls:** Easy integration with OpenAI's API for natural language processing.
 
 ### Sample Output
 
