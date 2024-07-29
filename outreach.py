@@ -13,7 +13,7 @@ from cache_utils import get_video_hash, cache_result
 
 # Constants
 COMMENT_THRESHOLD = 10
-TIME_THRESHOLD = 3  # in months
+TIME_THRESHOLD_IN_MONTHS = 3  # in months
 
 # Load environment variables from .env file at the start of the script
 load_dotenv()
@@ -26,10 +26,11 @@ def filter_posts(posts: list[RedditPost]) -> list[RedditPost]:
     :return: list of filtered Reddit submissions.
     """
     now = datetime.utcnow()
-    threshold_date = now - timedelta(days=TIME_THRESHOLD * 30)
+    threshold_date = now - timedelta(days=TIME_THRESHOLD_IN_MONTHS * 30)
     filtered_posts = [
         post for post in posts
-        if post.num_comments <= COMMENT_THRESHOLD and datetime.utcfromtimestamp(post.created_utc) > threshold_date
+        if post.num_comments <= COMMENT_THRESHOLD and \
+            datetime.utcfromtimestamp(post.created_utc) > threshold_date
     ]
     return filtered_posts
 
