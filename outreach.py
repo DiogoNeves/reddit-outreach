@@ -10,10 +10,13 @@ from reddit_search import get_reddit_instance, search_posts, RedditPost
 from post_analysis import analyze_posts, generate_engagement_content
 from keyword_extractor import get_relevant_keywords
 from cache_utils import get_video_hash, cache_result
+from csv_utils import save_posts_to_csv
 
 # Constants
 COMMENT_THRESHOLD = 10
 TIME_THRESHOLD_IN_MONTHS = 3  # in months
+SECTION_SEPARATOR = "=" * 20
+POST_SEPARATOR = "-" * 20
 
 # Load environment variables from .env file at the start of the script
 load_dotenv()
@@ -67,8 +70,8 @@ async def main(video_url: str) -> None:
 
     # Extract video details
     video_title, video_description = await get_video_details(video_url=video_url, video_hash=video_hash)
-    print(f"Video Title: {video_title}")
-    print(f"Video Description: {video_description}")
+    print(f"\n{SECTION_SEPARATOR}\nVideo Title: {video_title}\n{SECTION_SEPARATOR}")
+    print(f"\nVideo Description:\n{video_description}\n{SECTION_SEPARATOR}")
 
     # Get relevant keywords
     keywords = await get_keywords(video_title=video_title, video_description=video_description, video_hash=video_hash)
@@ -77,13 +80,13 @@ async def main(video_url: str) -> None:
         print("Error: Unable to extract keywords.")
         return
 
-    print(f"Suggested Keywords: {keywords}")
+    print(f"Suggested Keywords:\n{' - '.join(keywords)}\n{SECTION_SEPARATOR}")
 
     # Initialize Reddit
     reddit = None
     try:
         reddit = await get_reddit_instance()
-        print("Reddit initialized successfully.")
+        print(f"Reddit initialized successfully.\n{SECTION_SEPARATOR}")
 
         # Search for posts based on keywords
         posts = await get_reddit_posts(reddit=reddit, keywords=keywords, video_hash=video_hash)
@@ -92,7 +95,7 @@ async def main(video_url: str) -> None:
             print("Error: Unable to find matching posts.")
             return
 
-        print(f"Found {len(posts)} posts matching the criteria. Analyzing relevance...")
+        print(f"Found {len(posts)} posts matching the criteria. Analyzing relevance...\n{SECTION_SEPARATOR}")
 
         # Analyze posts for relevance
         relevant_posts = await analyze_reddit_posts(posts=posts, video_title=video_title, video_description=video_description, video_hash=video_hash)
@@ -101,7 +104,7 @@ async def main(video_url: str) -> None:
             print("Error: No relevant posts found.")
             return
 
-        print(f"Found {len(relevant_posts)} relevant posts. Generating comments...")
+        print(f"Found {len(relevant_posts)} relevant posts. Generating comments...\n{SECTION_SEPARATOR}")
 
         # Generate engagement content
         comments = await generate_engagement_content(video_url, video_title, relevant_posts)
@@ -109,7 +112,11 @@ async def main(video_url: str) -> None:
         for post, comment in zip(relevant_posts, comments):
             print(f"Post Title: {post.title}")
             print(f"Generated Comment: {comment}")
-            print(f"Post URL: {post.url}\n")
+            print(f"Post URL: {post.url}\n{POST_SEPARATOR}")
+
+        # Save to CSV
+        csv_path = save_posts_to_csv(relevant_posts, comments, f"{video_hash}_relevant_posts.csv")
+        print(f"Relevant posts and comments have been saved to {csv_path}")
     except RuntimeError as e:
         print(f"Error initializing Reddit: {e}")
     finally:
