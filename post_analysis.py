@@ -56,9 +56,11 @@ async def generate_engagement_content(video_url: str, video_title: str,
         async with semaphore:
             prompt = (f"Given the video title '{video_title}' and the following"
                       f" Reddit post, generate a helpful and non-spammy comment"
-                      f" that includes a link to the video.\n\nPost Title:"
-                      f" {post.title}\nPost Content: {post.selftext}\n\n"
-                      f"Video URL: {video_url}")
+                      f" that includes a link to the video. Make sure to mention"
+                      f" that you created the video and are sharing it to be"
+                      f" useful, and make the comment a relevant reply to the"
+                      f" original post.\n\nPost Title: {post.title}\nPost Content:"
+                      f" {post.selftext}\n\nVideo URL: {video_url}")
             comment = await request_completion(prompt)
             comments.append(comment)
 
