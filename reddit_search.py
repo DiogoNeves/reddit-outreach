@@ -4,14 +4,20 @@ subreddit search, and post search.
 """
 
 import asyncpraw
-import asyncpraw.models
 import webbrowser
-from typing import List
+from typing import List, NamedTuple
 from oauth_server import get_auth_code_from_server
-from llm_utils import request_completion, extract_json_from_string
 import os
 
-async def get_reddit_instance() -> 'asyncpraw.Reddit':
+class RedditPost(NamedTuple):
+    id: str
+    title: str
+    selftext: str
+    url: str
+    num_comments: int
+    created_utc: float
+
+async def get_reddit_instance() -> asyncpraw.Reddit:
     """
     Load Reddit API credentials from environment variables and initialize
     Reddit instance.
@@ -53,7 +59,7 @@ async def _init_reddit(client_id: str, client_secret: str, user_agent: str,
                               redirect_uri=redirect_uri)
 
     # Obtain the URL for user authentication
-    auth_url = reddit.auth.url(['*'], 'secrethorseshoe', 'permanent')
+    auth_url = reddit.auth.url(["*"], "secrethorseshoe", "permanent")
     print(f"Please go to this URL and authorize the application: {auth_url}")
 
     # Open the URL in the web browser for the user to authenticate
@@ -75,18 +81,25 @@ async def _init_reddit(client_id: str, client_secret: str, user_agent: str,
     return reddit
 
 async def search_posts(reddit: asyncpraw.Reddit, keywords: List[str], limit_per_keyword: int = 10
-) -> List[asyncpraw.models.Submission]:
+) -> List[RedditPost]:
     """
     Search Reddit for posts matching the given keywords.
 
     :param reddit: Initialized Async PRAW instance.
     :param keywords: List of keywords to search for.
     :param limit: Maximum number of posts to return.
-    :return: List of matching Reddit submissions.
+    :return: List of RedditPost named tuples containing matching Reddit submissions.
     """
     posts = []
     for keyword in keywords:
         subreddit = await reddit.subreddit("all")
         async for submission in subreddit.search(keyword, limit=limit_per_keyword):
-            posts.append(submission)
+            posts.append(RedditPost(
+                id=submission.id,
+                title=submission.title,
+                selftext=submission.selftext,
+                url=submission.url,
+                num_comments=submission.num_comments,
+                created_utc=submission.created_utc
+            ))
     return posts

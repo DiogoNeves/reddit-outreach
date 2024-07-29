@@ -6,9 +6,9 @@ import asyncio
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from video_utils import extract_video_details
-from reddit_search import get_reddit_instance, search_posts
+from reddit_search import get_reddit_instance, search_posts, RedditPost
 from post_analysis import analyze_posts, generate_engagement_content
-from keyword_extractor import get_relevant_keywords, filter_subreddits
+from keyword_extractor import get_relevant_keywords
 from cache_utils import get_video_hash, cache_result
 
 # Constants
@@ -18,7 +18,7 @@ TIME_THRESHOLD = 3  # in months
 # Load environment variables from .env file at the start of the script
 load_dotenv()
 
-def filter_posts(posts):
+def filter_posts(posts: list[RedditPost]) -> list[RedditPost]:
     """
     Filter posts based on comment count and age.
 
@@ -45,13 +45,13 @@ async def get_keywords(video_title: str, video_description: str, video_hash: str
     return await get_relevant_keywords(video_title, video_description)
 
 @cache_result("filtered_posts")
-async def get_reddit_posts(reddit, keywords: list, video_hash: str) -> list:
+async def get_reddit_posts(reddit, keywords: list, video_hash: str) -> list[RedditPost]:
     """Search for Reddit posts and save to cache if not already cached."""
     posts = await search_posts(reddit, keywords)
     return filter_posts(posts)
 
 @cache_result("relevant_posts")
-async def analyze_reddit_posts(posts: list, video_title: str, video_description: str, video_hash: str) -> list:
+async def analyze_reddit_posts(posts: list[RedditPost], video_title: str, video_description: str, video_hash: str) -> list:
     """Analyze Reddit posts for relevance and save to cache if not already cached."""
     return await analyze_posts(posts, video_title, video_description)
 
