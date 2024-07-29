@@ -79,6 +79,7 @@ async def main(video_url: str) -> None:
     print(f"Suggested Keywords: {keywords}")
 
     # Initialize Reddit
+    reddit = None
     try:
         reddit = await get_reddit_instance()
         print("Reddit initialized successfully.")
@@ -111,7 +112,8 @@ async def main(video_url: str) -> None:
     except RuntimeError as e:
         print(f"Error initializing Reddit: {e}")
     finally:
-        await reddit.close()
+        if reddit is not None:
+            await reddit.close()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
