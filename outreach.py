@@ -6,9 +6,10 @@ import asyncio
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from video_utils import extract_video_details
-from reddit_search import get_reddit_instance, search_subreddits, search_posts
+from reddit_search import get_reddit_instance, search_posts
 from post_analysis import analyze_posts, generate_engagement_content
 from keyword_extractor import get_relevant_keywords, filter_subreddits
+from cache_utils import get_video_hash, cache_result
 
 # Constants
 COMMENT_THRESHOLD = 10
@@ -32,19 +33,44 @@ def filter_posts(posts):
     ]
     return filtered_posts
 
+@cache_result("video_details")
+async def get_video_details(video_url: str, video_hash: str) -> tuple:
+    """Extract video details and save to cache if not already cached."""
+    title, description = extract_video_details(video_url)
+    return title, description
+
+@cache_result("keywords")
+async def get_keywords(video_title: str, video_description: str, video_hash: str) -> list:
+    """Get relevant keywords and save to cache if not already cached."""
+    return await get_relevant_keywords(video_title, video_description)
+
+@cache_result("filtered_posts")
+async def get_reddit_posts(reddit, keywords: list, video_hash: str) -> list:
+    """Search for Reddit posts and save to cache if not already cached."""
+    posts = await search_posts(reddit, keywords)
+    return filter_posts(posts)
+
+@cache_result("relevant_posts")
+async def analyze_reddit_posts(posts: list, video_title: str, video_description: str, video_hash: str) -> list:
+    """Analyze Reddit posts for relevance and save to cache if not already cached."""
+    return await analyze_posts(posts, video_title, video_description)
+
 async def main(video_url: str) -> None:
     """
     Main function to extract video details and initialize Reddit.
 
     :param video_url: URL of the YouTube video.
     """
+    # Generate video hash
+    video_hash = get_video_hash(video_url)
+
     # Extract video details
-    video_title, video_description = extract_video_details(video_url)
+    video_title, video_description = await get_video_details(video_url=video_url, video_hash=video_hash)
     print(f"Video Title: {video_title}")
     print(f"Video Description: {video_description}")
 
     # Get relevant keywords
-    keywords = await get_relevant_keywords(video_title, video_description)
+    keywords = await get_keywords(video_title=video_title, video_description=video_description, video_hash=video_hash)
 
     if not keywords:
         print("Error: Unable to extract keywords.")
@@ -60,43 +86,17 @@ async def main(video_url: str) -> None:
         print(f"Error initializing Reddit: {e}")
         return
 
-    # Search for subreddits based on keywords
-    subreddits = await search_subreddits(reddit, keywords)
-
-    if not subreddits:
-        print("Error: Unable to find matching subreddits.")
-        return
-
-    print(f"Suggested Subreddits before filtering: {subreddits}")
-
-    # Filter subreddits to keep only relevant ones
-    relevant_subreddits = await filter_subreddits(
-        video_title, video_description, subreddits)
-
-    if not relevant_subreddits:
-        print("Error: Unable to find relevant subreddits.")
-        return
-
-    print(f"Suggested Subreddits after filtering: {relevant_subreddits}")
-
     # Search for posts based on keywords
-    posts = await search_posts(reddit, keywords)
+    posts = await get_reddit_posts(reddit=reddit, keywords=keywords, video_hash=video_hash)
 
     if not posts:
         print("Error: Unable to find matching posts.")
         return
 
-    # Filter out posts with more than COMMENT_THRESHOLD comments and older than TIME_THRESHOLD months
-    posts = filter_posts(posts)
-
-    if not posts:
-        print("Error: No posts matching the criteria found.")
-        return
-
     print(f"Found {len(posts)} posts matching the criteria. Analyzing relevance...")
 
     # Analyze posts for relevance
-    relevant_posts = await analyze_posts(posts, video_title, video_description)
+    relevant_posts = await analyze_reddit_posts(posts=posts, video_title=video_title, video_description=video_description, video_hash=video_hash)
 
     if not relevant_posts:
         print("Error: No relevant posts found.")

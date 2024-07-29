@@ -74,23 +74,7 @@ async def _init_reddit(client_id: str, client_secret: str, user_agent: str,
 
     return reddit
 
-async def search_subreddits(reddit: asyncpraw.Reddit, keywords: List[str]) -> List[str]:
-    """
-    Search Reddit for subreddits matching the given keywords.
-
-    :param reddit: Initialized Async PRAW instance.
-    :param keywords: List of keywords to search for.
-    :return: List of matching subreddits.
-    """
-    subreddits = set()
-
-    for keyword in keywords:
-        async for result in reddit.subreddits.search(keyword, limit=5):
-            subreddits.add(result.display_name)
-
-    return list(subreddits)
-
-async def search_posts(reddit: asyncpraw.Reddit, keywords: List[str], limit: int = 100
+async def search_posts(reddit: asyncpraw.Reddit, keywords: List[str], limit_per_keyword: int = 10
 ) -> List[asyncpraw.models.Submission]:
     """
     Search Reddit for posts matching the given keywords.
@@ -102,6 +86,7 @@ async def search_posts(reddit: asyncpraw.Reddit, keywords: List[str], limit: int
     """
     posts = []
     for keyword in keywords:
-        async for submission in reddit.subreddit('all').search(keyword, limit=limit):
+        subreddit = await reddit.subreddit("all")
+        async for submission in subreddit.search(keyword, limit=limit_per_keyword):
             posts.append(submission)
     return posts
