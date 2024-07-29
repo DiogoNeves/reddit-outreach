@@ -22,8 +22,8 @@ def filter_posts(posts: list[RedditPost]) -> list[RedditPost]:
     """
     Filter posts based on comment count and age.
 
-    :param posts: List of Reddit submissions to filter.
-    :return: List of filtered Reddit submissions.
+    :param posts: list of Reddit submissions to filter.
+    :return: list of filtered Reddit submissions.
     """
     now = datetime.utcnow()
     threshold_date = now - timedelta(days=TIME_THRESHOLD * 30)
@@ -82,35 +82,36 @@ async def main(video_url: str) -> None:
     try:
         reddit = await get_reddit_instance()
         print("Reddit initialized successfully.")
+
+        # Search for posts based on keywords
+        posts = await get_reddit_posts(reddit=reddit, keywords=keywords, video_hash=video_hash)
+
+        if not posts:
+            print("Error: Unable to find matching posts.")
+            return
+
+        print(f"Found {len(posts)} posts matching the criteria. Analyzing relevance...")
+
+        # Analyze posts for relevance
+        relevant_posts = await analyze_reddit_posts(posts=posts, video_title=video_title, video_description=video_description, video_hash=video_hash)
+
+        if not relevant_posts:
+            print("Error: No relevant posts found.")
+            return
+
+        print(f"Found {len(relevant_posts)} relevant posts. Generating comments...")
+
+        # Generate engagement content
+        comments = await generate_engagement_content(video_url, video_title, relevant_posts)
+
+        for post, comment in zip(relevant_posts, comments):
+            print(f"Post Title: {post.title}")
+            print(f"Generated Comment: {comment}")
+            print(f"Post URL: {post.url}\n")
     except RuntimeError as e:
         print(f"Error initializing Reddit: {e}")
-        return
-
-    # Search for posts based on keywords
-    posts = await get_reddit_posts(reddit=reddit, keywords=keywords, video_hash=video_hash)
-
-    if not posts:
-        print("Error: Unable to find matching posts.")
-        return
-
-    print(f"Found {len(posts)} posts matching the criteria. Analyzing relevance...")
-
-    # Analyze posts for relevance
-    relevant_posts = await analyze_reddit_posts(posts=posts, video_title=video_title, video_description=video_description, video_hash=video_hash)
-
-    if not relevant_posts:
-        print("Error: No relevant posts found.")
-        return
-
-    print(f"Found {len(relevant_posts)} relevant posts. Generating comments...")
-
-    # Generate engagement content
-    comments = await generate_engagement_content(video_url, video_title, relevant_posts)
-
-    for post, comment in zip(relevant_posts, comments):
-        print(f"Post Title: {post.title}")
-        print(f"Generated Comment: {comment}")
-        print(f"Post URL: {post.url}\n")
+    finally:
+        await reddit.close()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
