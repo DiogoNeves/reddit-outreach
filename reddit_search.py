@@ -1,9 +1,10 @@
 """
-Utility functions to interact with Reddit, including initialization and
-subreddit search.
+Utility functions to interact with Reddit, including initialization
+and subreddit search.
 """
 
 import praw
+import praw.models
 import webbrowser
 from typing import List
 from oauth_server import get_auth_code_from_server
@@ -65,3 +66,19 @@ def search_subreddits(reddit: praw.Reddit, keywords: List[str]) -> List[str]:
             subreddits.add(result.display_name)
 
     return list(subreddits)
+
+def search_posts(reddit: praw.Reddit, keywords: List[str], limit: int = 100
+) -> List[praw.models.Submission]:
+    """
+    Search Reddit for posts matching the given keywords.
+
+    :param reddit: Initialized Reddit instance.
+    :param keywords: List of keywords to search for.
+    :param limit: Maximum number of posts to return.
+    :return: List of matching Reddit submissions.
+    """
+    posts = []
+    for keyword in keywords:
+        for submission in reddit.subreddit('all').search(keyword, limit=limit):
+            posts.append(submission)
+    return posts

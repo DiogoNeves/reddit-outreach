@@ -4,8 +4,8 @@ import argparse
 import os
 from dotenv import load_dotenv
 from video_utils import extract_video_details
-from reddit_search import init_reddit, search_subreddits
-from keyword_extractor import get_relevant_keywords
+from reddit_search import init_reddit, search_subreddits, search_posts
+from keyword_extractor import get_relevant_keywords, filter_subreddits
 
 # Load environment variables from .env file at the start of the script
 load_dotenv()
@@ -67,7 +67,27 @@ def main(video_url: str) -> None:
         print("Error: Unable to find matching subreddits.")
         return
 
-    print(f"Suggested Subreddits: {subreddits}")
+    print(f"Suggested Subreddits before filtering: {subreddits}")
+
+    # Filter subreddits to keep only relevant ones
+    relevant_subreddits = filter_subreddits(
+        video_title, video_description, subreddits)
+
+    if not relevant_subreddits:
+        print("Error: Unable to find relevant subreddits.")
+        return
+
+    print(f"Suggested Subreddits after filtering: {relevant_subreddits}")
+
+    # Search for posts based on keywords
+    posts = search_posts(reddit, keywords)
+
+    if not posts:
+        print("Error: Unable to find matching posts.")
+        return
+
+    for post in posts:
+        print(f"Found Post: {post.title} (URL: {post.url})")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
