@@ -1,6 +1,6 @@
 # Reddit Outreach
 
-A simple tool to find Reddit posts that would benefit from sharing a specific YouTube video.  
+A simple tool to find Reddit posts that would benefit from sharing a specific YouTube video.
 
 > This was a day hack and still needs cleaning up (especially organizing the files), but works!
 
@@ -12,6 +12,7 @@ A simple tool to find Reddit posts that would benefit from sharing a specific Yo
 - **Generate Comments:** Automatically generate relevant comments to publicize your YouTube video based on how relevant your video is to the posts.
 - **Multi-step LLM Calls:** Utilize multiple steps of language model calls to analyze posts and generate engagement content.
 - **Reddit API Integration:** Use the Reddit API to search for posts and comments to find the best opportunities for outreach.
+- **Exports to CSV:** Export the generated comments to a CSV file for easy sharing and tracking.
 
 ### Technical Features
 
