@@ -31,7 +31,9 @@ async def analyze_posts(posts: List[Submission], video_title: str,
                       f" {post.selftext}\n\nRespond with 'relevant' or"
                       f" 'not relevant'.")
             result = await request_completion(prompt)
-            if 'relevant' in result.lower():
+            lower_result = result.lower()
+            if "relevant" in lower_result and \
+                    "not relevant" not in lower_result:
                 relevant_posts.append(post)
 
     await asyncio.gather(*[analyze_post(post) for post in posts])
