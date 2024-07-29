@@ -6,10 +6,11 @@ import asyncio
 from typing import List
 from asyncpraw.models import Submission
 from llm_utils import request_completion
+from reddit_search import RedditPost
 
-async def analyze_posts(posts: List[Submission], video_title: str,
+async def analyze_posts(posts: List[RedditPost], video_title: str,
                         video_description: str, max_concurrency: int = 10
-) -> List[Submission]:
+) -> List[RedditPost]:
     """
     Analyze Reddit posts to determine relevance based on video content.
 
@@ -40,7 +41,7 @@ async def analyze_posts(posts: List[Submission], video_title: str,
     return relevant_posts
 
 async def generate_engagement_content(video_url: str, video_title: str,
-                                      posts: List[Submission],
+                                      posts: List[RedditPost],
                                       max_concurrency: int = 10) -> List[str]:
     """
     Generate engagement content for relevant Reddit posts.
