@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 from video_utils import extract_video_details
 from reddit_search import init_reddit, search_subreddits, search_posts
+from reddit_search import analyze_posts, generate_engagement_content
 from keyword_extractor import get_relevant_keywords, filter_subreddits
 
 # Load environment variables from .env file at the start of the script
@@ -86,8 +87,24 @@ def main(video_url: str) -> None:
         print("Error: Unable to find matching posts.")
         return
 
-    for post in posts:
-        print(f"Found Post: {post.title} (URL: {post.url})")
+    print(f"Found {len(posts)} posts. Analyzing relevance...")
+
+    # Analyze posts for relevance
+    relevant_posts = analyze_posts(posts, video_title, video_description)
+
+    if not relevant_posts:
+        print("Error: No relevant posts found.")
+        return
+
+    print(f"Found {len(relevant_posts)} relevant posts. Generating comments...")
+
+    # Generate engagement content
+    comments = generate_engagement_content(video_url, video_title, relevant_posts)
+
+    for post, comment in zip(relevant_posts, comments):
+        print(f"Post Title: {post.title}")
+        print(f"Generated Comment: {comment}")
+        print(f"Post URL: {post.url}\n")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

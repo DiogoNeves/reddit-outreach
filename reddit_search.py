@@ -1,6 +1,6 @@
 """
-Utility functions to interact with Reddit, including initialization
-and subreddit search.
+Utility functions to interact with Reddit, including initialization,
+subreddit search, post search, and content generation.
 """
 
 import praw
@@ -8,6 +8,7 @@ import praw.models
 import webbrowser
 from typing import List
 from oauth_server import get_auth_code_from_server
+from llm_utils import request_completion, extract_json_from_string
 
 def init_reddit(client_id: str, client_secret: str, user_agent: str,
                 redirect_uri: str) -> praw.Reddit:
@@ -82,3 +83,52 @@ def search_posts(reddit: praw.Reddit, keywords: List[str], limit: int = 100
         for submission in reddit.subreddit('all').search(keyword, limit=limit):
             posts.append(submission)
     return posts
+
+def analyze_posts(posts: List[praw.models.Submission], video_title: str,
+                  video_description: str) -> List[praw.models.Submission]:
+    """
+    Analyze Reddit posts to determine relevance based on video content.
+
+    :param posts: List of Reddit submissions to analyze.
+    :param video_title: Title of the video.
+    :param video_description: Description of the video.
+    :return: List of relevant Reddit submissions.
+    """
+    relevant_posts = []
+    for post in posts:
+        prompt = (f"Given the video title '{video_title}' and description"
+                  f" '{video_description}', analyze the following Reddit post"
+                  f" and determine if the video would be relevant to the"
+                  f" discussion.\n\nPost Title: {post.title}\nPost Content:"
+                  f" {post.selftext}\n\nRespond with 'relevant' or"
+                  f" 'not relevant'.")
+
+        result = request_completion(prompt)
+
+        if 'relevant' in result.lower():
+            relevant_posts.append(post)
+
+    return relevant_posts
+
+def generate_engagement_content(video_url: str, video_title: str,
+                                posts: List[praw.models.Submission]) -> List[str]:
+    """
+    Generate engagement content for relevant Reddit posts.
+
+    :param video_url: URL of the YouTube video.
+    :param video_title: Title of the video.
+    :param posts: List of relevant Reddit submissions.
+    :return: List of generated engagement comments.
+    """
+    comments = []
+    for post in posts:
+        prompt = (f"Given the video title '{video_title}' and the following"
+                  f" Reddit post, generate a helpful and non-spammy comment"
+                  f" that includes a link to the video.\n\nPost Title:"
+                  f" {post.title}\nPost Content: {post.selftext}\n\n"
+                  f"Video URL: {video_url}")
+
+        comment = request_completion(prompt)
+        comments.append(comment)
+
+    return comments
