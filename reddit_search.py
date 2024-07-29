@@ -1,7 +1,11 @@
-"""Utility functions to search Reddit."""""
+"""
+Utility functions to interact with Reddit, including initialization and
+subreddit search.
+"""
 
 import praw
 import webbrowser
+from typing import List
 from oauth_server import get_auth_code_from_server
 
 def init_reddit(client_id: str, client_secret: str, user_agent: str,
@@ -44,3 +48,20 @@ def init_reddit(client_id: str, client_secret: str, user_agent: str,
         raise RuntimeError(f"Error obtaining refresh token: {e}")
 
     return reddit
+
+def search_subreddits(reddit: praw.Reddit, keywords: List[str]) -> List[str]:
+    """
+    Search Reddit for subreddits matching the given keywords.
+
+    :param reddit: Initialized Reddit instance.
+    :param keywords: List of keywords to search for.
+    :return: List of matching subreddits.
+    """
+    subreddits = set()
+
+    for keyword in keywords:
+        results = reddit.subreddits.search(keyword, limit=5)
+        for result in results:
+            subreddits.add(result.display_name)
+
+    return list(subreddits)

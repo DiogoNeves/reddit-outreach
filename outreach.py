@@ -4,8 +4,8 @@ import argparse
 import os
 from dotenv import load_dotenv
 from video_utils import extract_video_details
-from reddit_utils import init_reddit
-from keyword_extractor import get_relevant_keywords_and_subreddits
+from reddit_search import init_reddit, search_subreddits
+from keyword_extractor import get_relevant_keywords
 
 # Load environment variables from .env file at the start of the script
 load_dotenv()
@@ -43,20 +43,14 @@ def main(video_url: str) -> None:
     print(f"Video Title: {video_title}")
     print(f"Video Description: {video_description}")
 
-    # Get relevant keywords and subreddits
-    keywords, subreddits = get_relevant_keywords_and_subreddits(
-        video_title, video_description)
+    # Get relevant keywords
+    keywords = get_relevant_keywords(video_title, video_description)
 
     if not keywords:
         print("Error: Unable to extract keywords.")
         return
 
-    if not subreddits:
-        print("Error: Unable to extract subreddits.")
-        return
-
     print(f"Suggested Keywords: {keywords}")
-    print(f"Suggested Subreddits: {subreddits}")
 
     # Initialize Reddit
     try:
@@ -65,6 +59,15 @@ def main(video_url: str) -> None:
     except RuntimeError as e:
         print(f"Error initializing Reddit: {e}")
         return
+
+    # Search for subreddits based on keywords
+    subreddits = search_subreddits(reddit, keywords)
+
+    if not subreddits:
+        print("Error: Unable to find matching subreddits.")
+        return
+
+    print(f"Suggested Subreddits: {subreddits}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
