@@ -2,38 +2,37 @@
 
 import argparse
 import os
+import asyncio
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from video_utils import extract_video_details
-from reddit_search import init_reddit, search_subreddits, search_posts
-from reddit_search import analyze_posts, generate_engagement_content
+from reddit_search import get_reddit_instance, search_subreddits, search_posts
+from post_analysis import analyze_posts, generate_engagement_content
 from keyword_extractor import get_relevant_keywords, filter_subreddits
+
+# Constants
+COMMENT_THRESHOLD = 10
+TIME_THRESHOLD = 3  # in months
 
 # Load environment variables from .env file at the start of the script
 load_dotenv()
 
-def get_reddit_instance() -> 'praw.Reddit':
+def filter_posts(posts):
     """
-    Load Reddit API credentials from environment variables and initialize
-    Reddit instance.
+    Filter posts based on comment count and age.
 
-    :return: Initialized Reddit instance.
-    :raises RuntimeError: If any required environment variables are missing.
+    :param posts: List of Reddit submissions to filter.
+    :return: List of filtered Reddit submissions.
     """
-    client_id = os.getenv("REDDIT_CLIENT_ID") or ""
-    client_secret = os.getenv("REDDIT_CLIENT_SECRET") or ""
-    user_agent = os.getenv("REDDIT_USER_AGENT") or ""
-    redirect_uri = os.getenv("REDDIT_REDIRECT_URI") or ""
+    now = datetime.utcnow()
+    threshold_date = now - timedelta(days=TIME_THRESHOLD * 30)
+    filtered_posts = [
+        post for post in posts
+        if post.num_comments <= COMMENT_THRESHOLD and datetime.utcfromtimestamp(post.created_utc) > threshold_date
+    ]
+    return filtered_posts
 
-    if not all([client_id, client_secret, user_agent, redirect_uri]):
-        raise RuntimeError(
-            "Error: Missing one or more environment variables"
-            " (REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT,"
-            " REDDIT_REDIRECT_URI)."
-        )
-
-    return init_reddit(client_id, client_secret, user_agent, redirect_uri)
-
-def main(video_url: str) -> None:
+async def main(video_url: str) -> None:
     """
     Main function to extract video details and initialize Reddit.
 
@@ -45,7 +44,7 @@ def main(video_url: str) -> None:
     print(f"Video Description: {video_description}")
 
     # Get relevant keywords
-    keywords = get_relevant_keywords(video_title, video_description)
+    keywords = await get_relevant_keywords(video_title, video_description)
 
     if not keywords:
         print("Error: Unable to extract keywords.")
@@ -55,14 +54,14 @@ def main(video_url: str) -> None:
 
     # Initialize Reddit
     try:
-        reddit = get_reddit_instance()
+        reddit = await get_reddit_instance()
         print("Reddit initialized successfully.")
     except RuntimeError as e:
         print(f"Error initializing Reddit: {e}")
         return
 
     # Search for subreddits based on keywords
-    subreddits = search_subreddits(reddit, keywords)
+    subreddits = await search_subreddits(reddit, keywords)
 
     if not subreddits:
         print("Error: Unable to find matching subreddits.")
@@ -71,7 +70,7 @@ def main(video_url: str) -> None:
     print(f"Suggested Subreddits before filtering: {subreddits}")
 
     # Filter subreddits to keep only relevant ones
-    relevant_subreddits = filter_subreddits(
+    relevant_subreddits = await filter_subreddits(
         video_title, video_description, subreddits)
 
     if not relevant_subreddits:
@@ -81,16 +80,23 @@ def main(video_url: str) -> None:
     print(f"Suggested Subreddits after filtering: {relevant_subreddits}")
 
     # Search for posts based on keywords
-    posts = search_posts(reddit, keywords)
+    posts = await search_posts(reddit, keywords)
 
     if not posts:
         print("Error: Unable to find matching posts.")
         return
 
-    print(f"Found {len(posts)} posts. Analyzing relevance...")
+    # Filter out posts with more than COMMENT_THRESHOLD comments and older than TIME_THRESHOLD months
+    posts = filter_posts(posts)
+
+    if not posts:
+        print("Error: No posts matching the criteria found.")
+        return
+
+    print(f"Found {len(posts)} posts matching the criteria. Analyzing relevance...")
 
     # Analyze posts for relevance
-    relevant_posts = analyze_posts(posts, video_title, video_description)
+    relevant_posts = await analyze_posts(posts, video_title, video_description)
 
     if not relevant_posts:
         print("Error: No relevant posts found.")
@@ -99,7 +105,7 @@ def main(video_url: str) -> None:
     print(f"Found {len(relevant_posts)} relevant posts. Generating comments...")
 
     # Generate engagement content
-    comments = generate_engagement_content(video_url, video_title, relevant_posts)
+    comments = await generate_engagement_content(video_url, video_title, relevant_posts)
 
     for post, comment in zip(relevant_posts, comments):
         print(f"Post Title: {post.title}")
@@ -112,4 +118,4 @@ if __name__ == "__main__":
     parser.add_argument("video_url", type=str, help="URL of the YouTube video")
 
     args = parser.parse_args()
-    main(args.video_url)
+    asyncio.run(main(args.video_url))

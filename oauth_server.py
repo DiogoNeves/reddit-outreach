@@ -41,10 +41,9 @@ class OAuthHandler:
 
         return self.auth_code
 
-def get_auth_code_from_server() -> str:
+async def get_auth_code_from_server() -> str:
     handler = OAuthHandler()
-    loop = asyncio.get_event_loop()
-    code = loop.run_until_complete(handler.run_server())
+    code = await handler.run_server()
     if code is None:
         raise RuntimeError("Failed to obtain authorization code.")
     return code

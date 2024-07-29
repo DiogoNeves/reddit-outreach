@@ -5,7 +5,7 @@ import os
 import json
 import re
 from typing import Optional, List, Dict, Union
-from openai import OpenAI
+from openai import AsyncOpenAI
 
 # Load environment variables from .env file
 from dotenv import load_dotenv
@@ -13,11 +13,11 @@ load_dotenv()
 
 # Initialize OpenAI API key
 openai_api_key = os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=openai_api_key)
+client = AsyncOpenAI(api_key=openai_api_key)
 
-def request_completion(prompt: str, system_prompt: Optional[str] = None) -> str:
+async def request_completion(prompt: str, system_prompt: Optional[str] = None) -> str:
     """
-    Request completion from OpenAI API.
+    Asynchronously request completion from OpenAI API.
 
     :param prompt: The user prompt to send to the OpenAI API.
     :param system_prompt: An optional system prompt to set the context.
@@ -30,7 +30,7 @@ def request_completion(prompt: str, system_prompt: Optional[str] = None) -> str:
 
     messages.append({"role": "user", "content": prompt})
 
-    completion = client.chat.completions.create(
+    completion = await client.chat.completions.create(
         model="gpt-4o-mini",
         messages=messages
     )

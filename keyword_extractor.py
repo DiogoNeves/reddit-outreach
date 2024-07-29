@@ -15,7 +15,7 @@ def escape_line_breaks(text: str) -> str:
     """
     return text.replace("\n", "&#10;")
 
-def get_relevant_keywords(
+async def get_relevant_keywords(
     video_title: str, video_description: str) -> List[str]:
     """
     Generate and return a list of relevant keywords based on
@@ -37,7 +37,7 @@ def get_relevant_keywords(
               f"  \"keywords\": [\"keyword1\", \"keyword2\", ...]\n"
               f"}}")
 
-    result = request_completion(prompt,
+    result = await request_completion(prompt,
         ("You are an assistant skilled in identifying relevant keywords."
          " Please output the result in the specified JSON format."))
 
@@ -49,8 +49,8 @@ def get_relevant_keywords(
 
     return keywords
 
-def filter_subreddits(video_title: str, video_description: str,
-                      subreddits: List[str]) -> List[str]:
+async def filter_subreddits(video_title: str, video_description: str,
+                            subreddits: List[str]) -> List[str]:
     """
     Filter the subreddits to keep only the relevant ones using the LLM.
 
@@ -73,7 +73,7 @@ def filter_subreddits(video_title: str, video_description: str,
               f" ...], \"additional_subreddits\": [\"subreddit3\","
               f" \"subreddit4\", ...]}}")
 
-    result = request_completion(prompt,
+    result = await request_completion(prompt,
         ("You are an assistant skilled in identifying relevant subreddits."
          " Please output the result in the specified JSON format."))
 
